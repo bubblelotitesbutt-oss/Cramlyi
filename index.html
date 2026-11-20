@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cramly – Last-Minute Study Helper</title>
+<style>
+:root{--bg:#000;--card:#0c0e13;--ink:#f2f4f8;--mut:#9aa3b2;--acc:#1e40af;--acc2:#0a1740;--bd:#23283a;--ok:#3ccf91;--bad:#ff7070;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:28px;margin:8px 0 2px;letter-spacing:-.5px}h1 span{color:#4f7cff}
+.sub{color:var(--mut);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:16px}
+h2{font-size:17px;margin:0 0 10px}
+textarea{width:100%;min-height:120px;border:1px solid var(--bd);border-radius:12px;padding:12px;font:inherit;background:var(--bg);color:var(--ink);resize:vertical}
+button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid #2f54d6;background:var(--acc);color:#fff;padding:10px 14px}button:hover{background:#2348c9}
+button.pri{font-weight:600;width:100%;padding:14px}
+button.pri:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumb{position:relative;width:72px;height:72px}.thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1px solid var(--bd)}
+.thumb b{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:14px;cursor:pointer}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{text-align:left;padding:12px}.opt.on{background:#2f54d6;border-color:#fff;font-weight:700}
+.cnt{color:var(--mut);font-size:14px;margin:8px 0 12px}
+.err{color:var(--bad);margin-top:10px}
+.pill{display:inline-block;background:var(--acc2);color:#8fb0ff;border-radius:99px;padding:2px 10px;font-size:13px;font-weight:600;margin-bottom:8px}
+ul{padding-left:20px;margin:6px 0}li{margin:4px 0}
+.vocab dt{font-weight:700}.vocab dd{margin:0 0 10px;color:var(--mut)}
+.fc{min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:19px;padding:20px;border:2px solid #2f54d6;border-radius:16px;cursor:pointer;background:var(--acc2)}
+.q .a{display:block;width:100%;text-align:left;margin:6px 0}
+.q .a.ok{border-color:var(--ok);background:#0f5a3e}.q .a.no{border-color:var(--bad);background:#6b1f1f}
+.map{overflow-x:auto}.map svg{min-width:640px;width:100%;height:auto}
+.hide{display:none}
+.read h3{font-size:18px;margin:28px 0 8px;padding-left:12px;border-left:4px solid #4f7cff;line-height:1.3}
+.read ul{list-style:none;padding:0;margin:0}
+.read li{position:relative;padding:14px 16px 14px 40px;margin:12px 0;background:var(--bg);border:1px solid var(--bd);border-radius:12px;line-height:1.8;font-size:16.5px}
+.read li::before{content:"";position:absolute;left:17px;top:24px;width:9px;height:9px;border-radius:50%;background:#4f7cff}
+.th{border:1px solid var(--bd);border-radius:14px;padding:14px;margin:12px 0}.th textarea{min-height:90px;margin:8px 0}
+.ans{margin-top:10px;padding:12px 14px;border-left:4px solid var(--ok);background:var(--bg);border-radius:8px;line-height:1.8;white-space:pre-wrap}
+.sh{font-size:14px;letter-spacing:1px;color:#8fb0ff;font-weight:700;margin:20px 0 6px}
+.hist{display:flex;gap:8px;margin:8px 0}.hist .hb{flex:1;text-align:left}.hist small{display:block;opacity:.8;margin-top:2px}
+select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--ink);font:inherit}
+</style></head><body><main>
+<h1>Cram<span>ly</span></h1>
+<p class="sub">Dump your notes, pick up to 3 study tools, and get ready fast.</p>
+
+<section class="card"><h2>1 · Add your material</h2>
+<textarea id="txt" placeholder="Paste or type your notes here…"></textarea>
+<div class="row">
+<button id="mic" class="hide">🎤 Dictate</button>
+<button id="addimg">🖼️ Add images</button>
+<input id="file" type="file" accept="image/*" multiple class="hide">
+</div>
+<div class="thumbs" id="thumbs"></div></section>
+
+<section class="card"><h2>Past questions <span style="color:var(--mut);font-weight:400">(optional)</span></h2>
+<p class="sub" style="margin:0 0 10px">Add past questions (like JAMB) so your quiz copies their style.</p>
+<textarea id="pq" style="min-height:80px" placeholder="Paste past questions here…"></textarea>
+<div class="row"><button id="addpq">📸 Add past question photos</button><input id="pqfile" type="file" accept="image/*" multiple class="hide"></div>
+<div class="thumbs" id="pqthumbs"></div></section>
+
+<section class="card"><h2>2 · What should I do with it?</h2>
+<div class="cnt" id="cnt">Pick up to 3</div>
+<div class="opts" id="opts"></div>
+<div class="cnt" style="margin-top:14px">Quiz style</div><select id="style"><option value="jamb">JAMB style (A–D options)</option><option value="standard">Standard</option></select>
+<div style="height:14px"></div>
+<button class="pri" id="go" disabled>Make my study kit</button>
+<div class="err" id="err"></div></section>
+
+<div id="out"></div>
+<section class="card"><h2>🕘 History</h2><div id="hist"></div></section>
+</main>
+<script>
+const MODES={
+ keynotes:["⭐ Key notes","keynotes: array of 5-10 short strings, the most important points to remember."],
+ vocab:["📖 Key vocabulary","vocab: array of {term, definition} (short, clear definitions)."],
+ flashcards:["🗂️ Flashcards","flashcards: array of 8-15 {front, back} cards."],
+ mindmap:["🧠 Mind map","mindmap: {center: string, branches: array of 3-6 {label, children: array of 2-3 short strings}}. Keep every label under 24 characters."],
+ quiz:["📝 Quiz me","quiz: array of 6-8 multiple-choice {q, options: array of 4 strings, answer: index 0-3, why: short explanation}."],
+ bullets:["📋 Organized bullets","bullets: array of {heading, points: array of strings} grouping the material into a clean outline."]
+};
+const $=id=>document.getElementById(id);
+let files=[],picked=[],dict=null;
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+
+// options
+Object.entries(MODES).forEach(([k,[n]])=>{const b=el("button","opt",n);b.onclick=()=>{
+  if(picked.includes(k))picked=picked.filter(x=>x!==k);else if(picked.length<3)picked.push(k);
+  else{$("err").textContent="You can pick only 3. Tap one to deselect it first.";return}
+  $("err").textContent="";sync()};b.dataset.k=k;$("opts").append(b)});
+function sync(){document.querySelectorAll(".opt").forEach(b=>b.classList.toggle("on",picked.includes(b.dataset.k)));
+ $("cnt").textContent=picked.length+" of 3 picked";$("go").disabled=!picked.length}
+
+// images
+let pqFiles=[];
+function wire(btn,inp,list,box){$(btn).onclick=()=>$(inp).click();$(inp).onchange=e=>{list.push(...e.target.files);e.target.value="";draw(list,box)}}
+function draw(list,box){const t=$(box);t.innerHTML="";list.forEach((f,i)=>{const d=el("div","thumb"),im=new Image();im.src=URL.createObjectURL(f);
+ const x=el("b",null,"×");x.onclick=()=>{list.splice(i,1);draw(list,box)};d.append(im,x);t.append(d)})}
+wire("addimg","file",files,"thumbs");wire("addpq","pqfile",pqFiles,"pqthumbs");
+
+// dictation (browser Web Speech API; hidden if unsupported)
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false;
+if(SR){$("mic").classList.remove("hide");rec=new SR();rec.continuous=true;rec.interimResults=false;
+ rec.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal){const v=$("txt").value;$("txt").value+=(v&&!/\s$/.test(v)?" ":"")+e.results[i][0].transcript}};
+ rec.onend=()=>{listening=false;$("mic").textContent="🎤 Dictate"}}
+$("mic").onclick=()=>{if(!rec)return;if(listening){rec.stop()}else{try{rec.start();listening=true;$("mic").textContent="⏹ Stop"}catch(e){}}};
+
+// shrink photos so they upload fast
+function shrink(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement("canvas");
+ c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+ res({mime:"image/jpeg",data:c.toDataURL("image/jpeg",.65).split(",")[1]})};im.onerror=rej;im.src=URL.createObjectURL(f)})}
+
+// generate
+$("go").onclick=async()=>{
+ const err=$("err");err.textContent="";
+ if(!$("txt").value.trim()&&!files.length){err.textContent="Add some notes or images first.";return}
+ $("go").disabled=true;$("go").textContent="Working on it…";$("out").innerHTML="";
+ try{
+  const images=await Promise.all(files.slice(0,5).map(shrink)),pqImages=await Promise.all(pqFiles.slice(0,3).map(shrink));
+  const res=await fetch("/api/study",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({text:$("txt").value.trim(),pq:$("pq").value.trim(),style:$("style").value,modes:picked,images,pqImages})});
+  const j=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(res.status===429?"Too many requests right now. Wait a minute and try again.":(j.error||"Server error"));
+  render(j,true);
+ }catch(e){err.textContent="Something went wrong: "+(e.message||"please try again")}
+ $("go").disabled=!picked.length;$("go").textContent="Make my study kit";
+};
+
+function sec(title){const s=el("section","card");s.append(el("span","pill",title));$("out").append(s);return s}
+function render(r,save){Object.keys(MODES).filter(k=>r[k]).forEach(k=>{const s=sec(MODES[k][0]);({keynotes,vocab,flashcards,mindmap,quiz,bullets})[k](s,r[k])});
+ if(save)saveH(r);$("out").scrollIntoView({behavior:"smooth"})}
+
+function keynotes(s,d){s.classList.add("read");const u=el("ul");d.forEach(x=>u.append(el("li",null,x)));s.append(u)}
+function vocab(s,d){s.classList.add("read");const u=el("ul");d.forEach(x=>{const li=el("li");li.append(el("b",null,x.term),document.createTextNode(" — "+x.definition));u.append(li)});s.append(u)}
+function bullets(s,d){s.classList.add("read");d.forEach(g=>{s.append(el("h3",null,g.heading));const u=el("ul");g.points.forEach(p=>u.append(el("li",null,p)));s.append(u)})}
+function flashcards(s,d){let i=0,flip=false;const c=el("div","fc"),inf=el("div","cnt"),row=el("div","row"),pv=el("button",null,"← Prev"),nx=el("button",null,"Next →");
+ const show=()=>{c.textContent=flip?d[i].back:d[i].front;c.style.background=flip?"var(--card)":"var(--acc2)";inf.textContent="Card "+(i+1)+" of "+d.length+" · tap card to flip"};
+ c.onclick=()=>{flip=!flip;show()};pv.onclick=()=>{i=(i-1+d.length)%d.length;flip=false;show()};nx.onclick=()=>{i=(i+1)%d.length;flip=false;show()};
+ row.append(pv,nx);s.append(c,inf,row);show()}
+function quiz(s,d){const ob=d.objective||[],th=d.theory||[];let score=0,done=0;const sc=el("div","cnt","Score: 0 / "+ob.length);
+ s.append(sc,el("div","sh","SECTION A · OBJECTIVE"));
+ ob.forEach((q,n)=>{const w=el("div","q");w.append(el("p",null,(n+1)+". "+q.q));let ans=false;const why=el("div","cnt");
+  q.options.forEach((o,j)=>{const b=el("button","a","ABCD"[j]+".  "+o);b.onclick=()=>{if(ans)return;ans=true;done++;
+   if(j===q.answer){score++;b.classList.add("ok")}else{b.classList.add("no");w.querySelectorAll(".a")[q.answer].classList.add("ok")}
+   why.textContent=q.why||"";sc.textContent="Score: "+score+" / "+ob.length+(done===ob.length?" — done!":"")};w.append(b)});
+  w.append(why);s.append(w)});
+ s.append(el("div","sh","SECTION B · THEORY"));
+ th.forEach((q,n)=>{const w=el("div","th");w.append(el("p",null,(n+1)+". "+q.q+(q.marks?" ["+q.marks+" marks]":"")));
+  const ta=el("textarea");ta.placeholder="Write your answer here…";const b=el("button",null,"Show model answer"),a=el("div","ans hide",q.answer);
+  b.onclick=()=>a.classList.toggle("hide");w.append(ta,b,a);s.append(w)})}
+function mindmap(s,d){const NS="http://www.w3.org/2000/svg",W=900,H=700,cx=450,cy=350,cols=["#6f9bff","#d6336c","#1f9d6b","#e8890c","#1c7ed6","#9c36b5"];
+ const svg=document.createElementNS(NS,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);
+ const mk=(t,a,x)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;svg.append(e);return e};
+ const n=d.branches.length;
+ d.branches.forEach((b,i)=>{const a=2*Math.PI*i/n-Math.PI/2,bx=cx+170*Math.cos(a),by=cy+170*Math.sin(a),c=cols[i%6];
+  mk("line",{x1:cx,y1:cy,x2:bx,y2:by,stroke:c,"stroke-width":3});
+  const ch=b.children||[],sp=Math.min(.55,Math.PI/n*.8);
+  ch.forEach((t,j)=>{const aa=a+(ch.length>1?(j/(ch.length-1)-.5)*2*sp:0),x=cx+310*Math.cos(aa),y=cy+310*Math.sin(aa);
+   mk("line",{x1:bx,y1:by,x2:x,y2:y,stroke:c,"stroke-width":1.5});
+   const right=Math.cos(aa)>=0;mk("text",{x:x+(right?8:-8),y:y+4,"text-anchor":right?"start":"end",fill:"currentColor","font-size":15},t)});
+  mk("circle",{cx:bx,cy:by,r:6,fill:c});
+  const right=Math.cos(a)>=0,lx=bx,ly=by-12;mk("text",{x:lx,y:ly,"text-anchor":"middle",fill:c,"font-size":17,"font-weight":700},b.label)});
+ mk("ellipse",{cx:cx,cy:cy,rx:90,ry:38,fill:"#1e40af"});
+ mk("text",{x:cx,y:cy+5,"text-anchor":"middle",fill:"#fff","font-size":16,"font-weight":700},d.center);
+ const m=el("div","map");m.append(svg);s.append(m)}
+// history (saved on this device)
+const HK="cramly_history";
+function loadH(){try{return JSON.parse(localStorage.getItem(HK)||"[]")}catch(e){return[]}}
+function putH(a){try{localStorage.setItem(HK,JSON.stringify(a.slice(0,30)))}catch(e){}}
+function saveH(r){const t=$("txt").value.trim(),a=loadH();a.unshift({id:Date.now(),t:(t.slice(0,48)||"Photo notes")+(t.length>48?"…":""),r});putH(a);showH()}
+function showH(){const b=$("hist");b.innerHTML="";const a=loadH();if(!a.length){b.append(el("div","cnt","Your saved study kits will show up here."));return}
+ a.forEach(h=>{const row=el("div","hist"),o=el("button","hb",h.t);
+  o.append(el("small",null,new Date(h.id).toLocaleDateString()+" · "+Object.keys(MODES).filter(k=>h.r[k]).map(k=>MODES[k][0].replace(/^\S+\s/,"")).join(", ")));
+  o.onclick=()=>{$("out").innerHTML="";render(h.r,false)};
+  const x=el("button",null,"🗑");x.onclick=()=>{putH(loadH().filter(i=>i.id!==h.id));showH()};row.append(o,x);b.append(row)});
+ const c=el("button",null,"Clear all history");c.onclick=()=>{if(confirm("Delete all saved study kits?")){putH([]);showH()}};b.append(c)}
+showH();
+</script></body></html>
