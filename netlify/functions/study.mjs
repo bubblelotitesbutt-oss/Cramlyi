@@ -1,4 +1,4 @@
-// Netlify function: keeps your Gemini key secret and calls Google.
+// Netlify function: keeps your Gemini key secret and calls Google, with retries.
 const SPECS = {
   keynotes: "keynotes: array of 6-10 strings. Each is one complete, clear point (under 30 words).",
   vocab: "vocab: array of {term, definition} (short, clear definitions).",
@@ -23,6 +23,7 @@ function limited(ip) {
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json" } });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 export default async (req, context) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -51,24 +52,34 @@ export default async (req, context) => {
   if (pqImages.length) parts.push({ text: "The following images are PAST QUESTIONS:" });
   for (const im of pqImages.slice(0, 3)) parts.push({ inline_data: { mime_type: im.mime || "image/jpeg", data: im.data } });
 
-  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
-  try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
-        body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json" } }),
+  const main = process.env.GEMINI_MODEL || "gemini-flash-latest";
+  const backup = process.env.GEMINI_FALLBACK_MODEL || "gemini-flash-lite-latest";
+  const attempts = [main, main, backup];
+  const payload = JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json" } });
+
+  for (let i = 0; i < attempts.length; i++) {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${attempts[i]}:generateContent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
+          body: payload,
+        }
+      );
+      if (r.status === 429) return json({ error: "Rate limit reached" }, 429);
+      if (r.status === 400 || r.status === 401 || r.status === 403) {
+        return json({ error: "The AI key or request was rejected (" + r.status + ")." }, 502);
       }
-    );
-    if (r.status === 429) return json({ error: "Rate limit reached" }, 429);
-    if (!r.ok) return json({ error: "The AI service returned an error (" + r.status + ")." }, 502);
-    const data = await r.json();
-    const out = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
-    return json(JSON.parse(out.replace(/```json|```/g, "").trim()));
-  } catch (e) {
-    return json({ error: "Could not build your study kit. Try again." }, 500);
+      if (r.ok) {
+        const data = await r.json();
+        const out = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "";
+        try { return json(JSON.parse(out.replace(/```json|```/g, "").trim())); } catch (e) {}
+      }
+    } catch (e) {}
+    if (i < attempts.length - 1) await sleep(1200);
   }
+  return json({ error: "Google's AI is busy right now. Please try again in a minute." }, 503);
 };
 
 export const config = { path: "/api/study" };
